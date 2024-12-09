@@ -20,10 +20,23 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 public class CartServer implements Runnable {
-    private static final int PORT = 7222;
+    private static final int DEFAULT_PORT = 7222;
+    private final int port;
+
+    public CartServer(int port) {
+        this.port = port;
+    }
 
     public static void main(String[] args) {
-        new CartServer().run();
+        int port = DEFAULT_PORT;
+        if (args.length > 0) {
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid port number. Using default port " + DEFAULT_PORT);
+            }
+        }
+        new CartServer(port).run();
     }
 
     public void run() {
@@ -36,7 +49,7 @@ public class CartServer implements Runnable {
     }
 
     private void startServer() {
-        Server server = new Server(PORT);
+        Server server = new Server(port);
         ServletContextHandler contextHandler = new ServletContextHandler(server, "/");
         contextHandler.addFilter(EntityManagerContextFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
